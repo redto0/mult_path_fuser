@@ -1,9 +1,9 @@
-#include "mult_path_fuser_360/multPathFuser360_node.hpp"
+#include "mult_path_fuser/multPathFuser_node.hpp"
 
 // For _1
 using namespace std::placeholders;
 
-mult_path_fuser_360::mult_path_fuser_360(const rclcpp::NodeOptions& options) : Node("mult_path_fuser_360", options) {
+mult_path_fuser::mult_path_fuser(const rclcpp::NodeOptions& options) : Node("mult_path_fuser", options) {
     // Parameters
     float x = this->declare_parameter<float>("foo", -10.0);
 
@@ -21,7 +21,7 @@ mult_path_fuser_360::mult_path_fuser_360(const rclcpp::NodeOptions& options) : N
 }
 
 // Store the latest GPS path
-void mult_path_fuser_360::path_gps_sub(const nav_msgs::msg::Path::SharedPtr msg) {
+void mult_path_fuser::path_gps_sub(const nav_msgs::msg::Path::SharedPtr msg) {
     // store the lastest gps_path
     // note this only works because the GPS path is published at a lower rate than the other path!
     std::lock_guard<std::mutex> lock(gps_path_mtx);
@@ -34,7 +34,7 @@ double pose_distance(const geometry_msgs::msg::PoseStamped& a, const geometry_ms
     return std::sqrt(dx * dx + dy * dy);
 }
 // Fuse paths: vision preferred, append extra GPS points if vision is shorter
-void mult_path_fuser_360::path_vision_sub(const nav_msgs::msg::Path::SharedPtr msg) {
+void mult_path_fuser::path_vision_sub(const nav_msgs::msg::Path::SharedPtr msg) {
     transform_path(*msg, target_frame);
     {
         std::lock_guard<std::mutex> vision_lock(vision_path_mtx);

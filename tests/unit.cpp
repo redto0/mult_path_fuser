@@ -2,9 +2,9 @@
 
 // #include <rclcpp/rclcpp.hpp>
 
-// #include "mult_path_fuser_360/multPathFuser360_node.hpp"
+// #include "mult_path_fuser/multPathFuser_node.hpp"
 
-// TEST(multPathFuser360, Test1) {}
+// TEST(multPathFuser, Test1) {}
 
 // int main(int argc, char** argv) {
 //     rclcpp::init(0, nullptr);

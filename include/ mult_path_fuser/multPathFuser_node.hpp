@@ -3,7 +3,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
-class mult_path_fuser_360 : public rclcpp::Node {
+class mult_path_fuser : public rclcpp::Node {
 private:
     // pubs
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr combined_path_pub;
@@ -50,7 +50,7 @@ private:
     std::unique_ptr<tf2_ros::Buffer> tf_buffer;
 
 public:
-    mult_path_fuser_360(const rclcpp::NodeOptions& options);
+    mult_path_fuser(const rclcpp::NodeOptions& options);
 
     nav_msgs::msg::Path path_vision;
     nav_msgs::msg::Path path_gps;

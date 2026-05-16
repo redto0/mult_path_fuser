@@ -6,7 +6,7 @@ named in honor of our cad prgram , fusion 360
 2. `rosdep install --from-paths . --ignore-src -r -y` to install deps
 3. `colcon build` to make sure the repo builds before you mess with it
 4. Replace the following in both file names and code exactly and consistently. 
-   1. mult_path_fuser_360: Replace with the package name. Use snake case. Ex. `mult_path_fuser_360`
+   1. mult_path_fusere with the package name. Use snake case. Ex. `mult_path_fuser`
    2. TODO_PACKAGE_NAME: Replace with the node name. Use Pascal case. Ex. `multPathFuser360`
 5. `colcon build` again. If it builds, you are done
 6. Rename outer folder
@@ -29,19 +29,19 @@ These are marked with TODO_EXTRA.
 ```
 .
 ├── include
-│   └── mult_path_fuser_360
-│       └── mult_path_fuser_360_node.hpp
+│   └── mult_path_fuser
+│       └── mult_path_fuser_node.hpp
 ├── package.xml
 ├── README.md
 ├── src
-│   ├── mult_path_fuser_360.cpp
-│   └── mult_path_fuser_360_node.cpp
+│   ├── mult_path_fuser.cpp
+│   └── mult_path_fuser_node.cpp
 └── tests
     └── unit.cpp
 ```
 
-mult_path_fuser_360_node: Source files for the ROS2 node object itself, and only itself
+mult_path_fuser_node: Source files for the ROS2 node object itself, and only itself
 
-mult_path_fuser_360.cpp: Source for the main function of the node, and only the main function
+mult_path_fuser.cpp: Source for the main function of the node, and only the main function
 
 tests/unit.cpp: Example file for unit tests. This is linked to the node and ros, so both can be used

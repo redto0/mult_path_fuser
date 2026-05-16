@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(mult_path_fuser_360)
+project(mult_path_fuser)
 include(FetchContent)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -18,11 +18,11 @@ find_package(cv_bridge REQUIRED)
 find_package(OpenCV 4.2.0 REQUIRED)
 
 # Add source for node executable (link non-ros dependencies here)
-add_executable(mult_path_fuser_360 src/multPathFuser360.cpp src/multPathFuser360_node.cpp)
-target_include_directories(mult_path_fuser_360 PUBLIC
+add_executable(mult_path_fuser src/multPathFuser.cpp src/multPathFuser_node.cpp)
+target_include_directories(mult_path_fuser PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
-target_compile_features(mult_path_fuser_360 PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(mult_path_fuser PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
 # Make ros deps a variable so they get linked to tests as well
 set(dependencies
@@ -38,11 +38,11 @@ set(dependencies
 
 # Link ros dependencies
 ament_target_dependencies(
-        mult_path_fuser_360
+        mult_path_fuser
         ${dependencies}
 )
 
-install(TARGETS mult_path_fuser_360
+install(TARGETS mult_path_fuser
         DESTINATION lib/${PROJECT_NAME})
 
 # Uncomment below to make launch files available if created
@@ -62,7 +62,7 @@ if (BUILD_TESTING)
     ament_add_gtest(${PROJECT_NAME}-test
             tests/unit.cpp
             # Remember to add node source files
-            src/multPathFuser360_node.cpp
+            src/multPathFuser_node.cpp
             )
     ament_target_dependencies(${PROJECT_NAME}-test ${dependencies})
     target_include_directories(${PROJECT_NAME}-test PUBLIC

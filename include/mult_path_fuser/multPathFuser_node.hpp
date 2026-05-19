@@ -1,17 +1,30 @@
 #pragma once
 
+#include <tf2/LinearMath/Transform.h>    // (optional) low‑level transform if needed
+#include <tf2/time.h>                    // for tf2::TimePointZero
+#include <tf2_ros/buffer.h>              // for tf2_ros::Buffer
+#include <tf2_ros/transform_listener.h>  // for tf2_ros::TransformListener
+
+#include <geometry_msgs/msg/pose_stamped.hpp>       // for geometry_msgs::msg::PoseStamped
+#include <memory>                                   // for std::shared_ptr, std::unique_ptr
+#include <mutex>                                    // for std::mutex
+#include <nav_msgs/msg/path.hpp>                    // for nav_msgs::msg::Path
+#include <rclcpp/rclcpp.hpp>                        // for rclcpp::Node, rclcpp::Publisher, etc.
+#include <std_msgs/msg/string.hpp>                  // for std_msgs::msg::String
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // for tf2::doTransform on geometry_msgs
+
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
 class mult_path_fuser : public rclcpp::Node {
 private:
     // pubs
-    rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr combined_path_pub;
+    // rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr combined_path_pub;
 
     // subs
-    rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_vision_sub;
+    // rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr path_vision_sub;
 
-    rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_gps_sub;
+    // rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr path_gps_sub;
 
     /// Transforms a path into a given target frame.
     void transform_path(nav_msgs::msg::Path& path, std::string target_frame) {
@@ -55,7 +68,9 @@ public:
     nav_msgs::msg::Path path_vision;
     nav_msgs::msg::Path path_gps;
 
+    std::string target_frame;
+
     /// subscriber callback
-    void path_vision_sub(std_msgs::msg::String::SharedPtr msg);
-    void path_gps_sub(std_msgs::msg::String::SharedPtr msg);
+    void path_vision_sub(const std_msgs::msg::String::SharedPtr msg);
+    void path_gps_sub(const std_msgs::msg::String::SharedPtr msg);
 };

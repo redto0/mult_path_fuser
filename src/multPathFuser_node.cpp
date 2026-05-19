@@ -5,13 +5,22 @@ using namespace std::placeholders;
 
 mult_path_fuser::mult_path_fuser(const rclcpp::NodeOptions& options) : Node("mult_path_fuser", options) {
     // Parameters
-    float x = this->declare_parameter<float>("foo", -10.0);
+    // float x = this->declare_parameter<float>("foo", -10.0);
 
     target_frame = this->declare_parameter<std::string>("target_frame", "rear_axle");
 
     this->path_gps_sub = this->create_subscription<nav_msgs::msg::Path>("/path_gps", 5);
+    this->create_subscription<nav_msgs::msg::Path>(
+    "/path_vision",
+    rclcpp::QoS(5),
+    std::bind(&mult_path_fuser::path_vision_sub, this, std::placeholders::_1)
+    );
 
-    this->path_vision_sub = this->create_subscription<nav_msgs::msg::Path>("/path_vision", 5);
+    this->create_subscription<nav_msgs::msg::Path>(
+    "/path_gps",
+    rclcpp::QoS(5),
+    std::bind(&mult_path_fuser::path_gps_sub, this, std::placeholders::_1)
+    );
 
     this->combined_path_pub = this->create_publisher<nav_msgs::msg::Path>("/path", 5);
 

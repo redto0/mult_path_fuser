@@ -17,6 +17,12 @@ find_package(std_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(OpenCV 4.2.0 REQUIRED)
 
+find_package(nav_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+
 # Add source for node executable (link non-ros dependencies here)
 add_executable(mult_path_fuser src/multPathFuser.cpp src/multPathFuser_node.cpp)
 target_include_directories(mult_path_fuser PUBLIC
@@ -34,6 +40,14 @@ set(dependencies
         # OpenCv TODO_EXTRA
         cv_bridge
         OpenCV
+        nav_msgs
+        rclcpp
+        std_msgs
+        nav_msgs
+        geometry_msgs
+        tf2
+        tf2_ros
+        tf2_geometry_msgs
         )
 
 # Link ros dependencies

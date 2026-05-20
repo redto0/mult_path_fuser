@@ -19,7 +19,7 @@
 class mult_path_fuser : public rclcpp::Node {
 private:
     // pubs
-    // rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr combined_path_pub;
+    rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr combined_path_pub;
 
     // subs
     // rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr path_vision_sub;
@@ -71,6 +71,7 @@ public:
     std::string target_frame;
 
     /// subscriber callback
-    void path_vision_sub(const std_msgs::msg::String::SharedPtr msg);
-    void path_gps_sub(const std_msgs::msg::String::SharedPtr msg);
+    void path_vision_sub(const nav_msgs::msg::Path::SharedPtr msg);
+    void path_gps_sub(const nav_msgs::msg::Path::SharedPtr msg);
+    // void combined_path_pub()
 };

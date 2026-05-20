@@ -9,7 +9,7 @@ mult_path_fuser::mult_path_fuser(const rclcpp::NodeOptions& options) : Node("mul
 
     target_frame = this->declare_parameter<std::string>("target_frame", "rear_axle");
 
-    this->path_gps_sub = this->create_subscription<nav_msgs::msg::Path>("/path_gps", 5);
+    //this->path_gps_sub = this->create_subscription<nav_msgs::msg::Path>("/path_gps", 5);
     this->create_subscription<nav_msgs::msg::Path>(
     "/path_vision",
     rclcpp::QoS(5),
@@ -78,7 +78,7 @@ void mult_path_fuser::path_vision_sub(const nav_msgs::msg::Path::SharedPtr msg) 
     }
 
     // Update vision path with fused version for next iteration
-    path_vision = msg;
+    path_vision = fused_path;
 
     combined_path_pub->publish(fused_path);
 }

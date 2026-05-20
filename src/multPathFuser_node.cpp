@@ -11,16 +11,10 @@ mult_path_fuser::mult_path_fuser(const rclcpp::NodeOptions& options) : Node("mul
 
     //this->path_gps_sub = this->create_subscription<nav_msgs::msg::Path>("/path_gps", 5);
     this->create_subscription<nav_msgs::msg::Path>(
-    "/path_vision",
-    rclcpp::QoS(5),
-    std::bind(&mult_path_fuser::path_vision_sub, this, std::placeholders::_1)
-    );
+        "/path_vision", rclcpp::QoS(5), std::bind(&mult_path_fuser::path_vision_sub, this, std::placeholders::_1));
 
     this->create_subscription<nav_msgs::msg::Path>(
-    "/path_gps",
-    rclcpp::QoS(5),
-    std::bind(&mult_path_fuser::path_gps_sub, this, std::placeholders::_1)
-    );
+        "/path_gps", rclcpp::QoS(5), std::bind(&mult_path_fuser::path_gps_sub, this, std::placeholders::_1));
 
     this->combined_path_pub = this->create_publisher<nav_msgs::msg::Path>("/path", 5);
 

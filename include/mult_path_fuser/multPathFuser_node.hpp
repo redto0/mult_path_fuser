@@ -22,9 +22,9 @@ private:
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr combined_path_pub;
 
     // subs
-    // rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr path_vision_sub;
+    rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr path_preferred_subscription;
 
-    // rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr path_gps_sub;
+    rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr path_secondary_subscription;
 
     /// Transforms a path into a given target frame.
     void transform_path(nav_msgs::msg::Path& path, std::string target_frame) {
@@ -52,9 +52,9 @@ private:
     }
 
     /// Path lock
-    std::mutex gps_path_mtx;
+    std::mutex secondary_path_mtx;
     /// Odom lock
-    std::mutex vision_path_mtx;
+    std::mutex preferred_path_mtx;
     /// Objects lock
     std::mutex odom_mtx;
 
@@ -65,13 +65,13 @@ private:
 public:
     mult_path_fuser(const rclcpp::NodeOptions& options);
 
-    nav_msgs::msg::Path path_vision;
-    nav_msgs::msg::Path path_gps;
+    nav_msgs::msg::Path path_preferred;
+    nav_msgs::msg::Path path_secondary;
 
     std::string target_frame;
 
     /// subscriber callback
-    void path_vision_sub(const nav_msgs::msg::Path::SharedPtr msg);
-    void path_gps_sub(const nav_msgs::msg::Path::SharedPtr msg);
+    void path_preferred_sub(const nav_msgs::msg::Path::SharedPtr msg);
+    void path_secondary_sub(const nav_msgs::msg::Path::SharedPtr msg);
     // void combined_path_pub()
 };

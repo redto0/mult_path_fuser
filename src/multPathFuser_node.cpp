@@ -8,6 +8,7 @@ mult_path_fuser::mult_path_fuser(const rclcpp::NodeOptions& options) : Node("mul
     // float x = this->declare_parameter<float>("foo", -10.0);
 
     target_frame = this->declare_parameter<std::string>("target_frame", "rear_axle");
+    odom_frame = this->declare_parameter<std::string>("odom_frame", "odom");
 
     this->path_preferred_subscription = this->create_subscription<nav_msgs::msg::Path>(
         "/path_preferred", rclcpp::QoS(5),
@@ -24,12 +25,13 @@ mult_path_fuser::mult_path_fuser(const rclcpp::NodeOptions& options) : Node("mul
     transform_listener = std::make_shared<tf2_ros::TransformListener>(*tf_buffer);
 }
 
-// Store the latest secondary path
+// Store the latest secondary path and re-fuse
 void mult_path_fuser::path_secondary_sub(const nav_msgs::msg::Path::SharedPtr msg) {
-    // store the lastest secondary path
-    // note this only works because the secondary path is published at a lower rate than the other path!
-    std::lock_guard<std::mutex> lock(secondary_path_mtx);
-    path_secondary = *msg;
+    {
+        std::lock_guard<std::mutex> lock(secondary_path_mtx);
+        path_secondary = *msg;
+    }
+    fuse_and_publish();
 }
 // Helper to compute 2D distance between poses
 double pose_distance(const geometry_msgs::msg::PoseStamped& a, const geometry_msgs::msg::PoseStamped& b) {
@@ -37,43 +39,60 @@ double pose_distance(const geometry_msgs::msg::PoseStamped& a, const geometry_ms
     double dy = a.pose.position.y - b.pose.position.y;
     return std::sqrt(dx * dx + dy * dy);
 }
-// Fuse paths: preferred path wins, append extra secondary points if preferred is shorter
+
+// Store the latest preferred path and re-fuse
 void mult_path_fuser::path_preferred_sub(const nav_msgs::msg::Path::SharedPtr msg) {
-    transform_path(*msg, target_frame);
     {
         std::lock_guard<std::mutex> preferred_lock(preferred_path_mtx);
-        path_preferred = *msg;  // Start with preferred path
+        path_preferred = *msg;
     }
-    transform_path(path_preferred, target_frame);
+    fuse_and_publish();
+}
 
-    // Transform secondary path into preferred frame
+// Fuse paths: preferred path wins, append extra secondary points if preferred is shorter.
+// Both inputs are treated as async/possibly-stale: each is independently bridged through
+// odom_frame to "now" before fusion, so neither side has to be the one that just arrived.
+void mult_path_fuser::fuse_and_publish() {
+    const rclcpp::Time now = this->get_clock()->now();
+
+    nav_msgs::msg::Path preferred_transformed;
+    {
+        std::lock_guard<std::mutex> preferred_lock(preferred_path_mtx);
+        preferred_transformed = path_preferred;
+    }
+    transform_path(preferred_transformed, target_frame, now, odom_frame);
+
     nav_msgs::msg::Path secondary_transformed;
     {
         std::lock_guard<std::mutex> secondary_lock(secondary_path_mtx);
         secondary_transformed = path_secondary;
     }
-    transform_path(secondary_transformed, target_frame);
+    transform_path(secondary_transformed, target_frame, now, odom_frame);
 
     // Start fused path with preferred
-    nav_msgs::msg::Path fused_path = path_preferred;
+    nav_msgs::msg::Path fused_path = preferred_transformed;
 
     // Distance threshold in meters
     const double dist_thresh = 0.5;
 
     if (!secondary_transformed.poses.empty()) {
-        // Start from last preferred point
-        geometry_msgs::msg::PoseStamped last_preferred_pose = fused_path.poses.back();
+        geometry_msgs::msg::PoseStamped last_preferred_pose;
+        bool have_last_pose = !fused_path.poses.empty();
+        if (have_last_pose) {
+            last_preferred_pose = fused_path.poses.back();
+        }
 
         for (const auto& secondary_pose : secondary_transformed.poses) {
-            if (pose_distance(last_preferred_pose, secondary_pose) > dist_thresh) {
+            if (!have_last_pose || pose_distance(last_preferred_pose, secondary_pose) > dist_thresh) {
                 fused_path.poses.push_back(secondary_pose);
-                last_preferred_pose = secondary_pose;  // Update last point
+                last_preferred_pose = secondary_pose;
+                have_last_pose = true;
             }
         }
     }
 
-    // Update preferred path with fused version for next iteration
-    path_preferred = fused_path;
+    fused_path.header.frame_id = target_frame;
+    fused_path.header.stamp = now;
 
     combined_path_pub->publish(fused_path);
 }
